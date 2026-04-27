@@ -18,6 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->string('no_id')->nullable()->unique();
+            $table->unsignedBigInteger('rayon_id')->nullable();
+            $table->unsignedBigInteger('rombel_id')->nullable();
             $table->timestamps();
         });
 
