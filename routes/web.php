@@ -13,6 +13,9 @@ Route::get('/', function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
     Route::resource('barang', \App\Http\Controllers\Admin\BarangController::class);
+    Route::resource('user', \App\Http\Controllers\Admin\UserController::class);
+    Route::resource('rayon', \App\Http\Controllers\Admin\RayonController::class);
+    Route::resource('rombel', \App\Http\Controllers\Admin\RombelController::class);
 });
 
 Route::middleware(['auth', 'role:petugas,admin'])->prefix('petugas')->name('petugas.')->group(function () {

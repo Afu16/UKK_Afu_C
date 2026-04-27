@@ -18,18 +18,18 @@
             @if($role === 'admin')
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <a href="{{ route('admin.barang.index')}}" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center shadow">
-                    📦 Kelola Barang
+                    📦 Kelola Buku
                 </a>
-                <a href="#" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center shadow">
+                <a href="{{ route('admin.user.index') }}" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center shadow">
                     👥 Kelola User
                 </a>
                 <a href="#" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center shadow">
                     📊 Laporan
                 </a>
-                <a href="#" class="bg-indigo-500 hover:bg-indigo-600 text-white p-4 rounded-lg text-center shadow">
+                <a href="{{ route('admin.rayon.index') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white p-4 rounded-lg text-center shadow">
                     🏫 Rayon
                 </a>
-                <a href="#" class="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-lg text-center shadow">
+                <a href="{{ route('admin.rombel.index') }}" class="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-lg text-center shadow">
                     🏫 Rombel
                 </a>
                 <a href="#" class="bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-lg text-center shadow">

@@ -49,4 +49,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function rayon()
+    {
+        return $this->belongsTo(Rayon::class);
+    }
+
+    public function rombel()
+    {
+        return $this->belongsTo(Rombel::class);
+    }
 }
