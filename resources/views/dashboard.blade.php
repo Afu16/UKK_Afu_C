@@ -11,13 +11,13 @@
             {{-- Info user --}}
             <div class="bg-white p-6 rounded-lg shadow mb-6">
                 <p class="text-lg">Selamat datang, <strong>{{ auth()->user()->name }}</strong>!</p>
-                <p class="text-gray-500 text-sm mt-1">Role: <span class="font-semibold capitalize">{{ $role }}</span></p>
+                {{-- <p class="text-gray-500 text-sm mt-1">Role: <span class="font-semibold capitalize">{{ $role }}</span></p> --}}
             </div>
 
             {{-- Menu per role --}}
             @if($role === 'admin')
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center shadow">
+                <a href="{{ route('admin.barang.index')}}" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center shadow">
                     📦 Kelola Barang
                 </a>
                 <a href="#" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center shadow">
@@ -26,7 +26,7 @@
                 <a href="#" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center shadow">
                     📊 Laporan
                 </a>
-                <a href="#" class="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-lg text-center shadow">
+                <a href="#" class="bg-indigo-500 hover:bg-indigo-600 text-white p-4 rounded-lg text-center shadow">
                     🏫 Rayon
                 </a>
                 <a href="#" class="bg-yellow-500 hover:bg-yellow-600 text-white p-4 rounded-lg text-center shadow">
