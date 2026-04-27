@@ -1,5 +1,7 @@
 <x-app-layout>
-    <x-slot name="header"><h2 class="font-semibold text-xl">Kelola User</h2></x-slot>
+    <x-slot name="header"><h2 class="font-semibold text-xl">Kelola User</h2>
+                <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:underline text-sm mt-4 block">← Dashboard</a>
+    </x-slot>
     <div class="py-8 max-w-6xl mx-auto sm:px-6 lg:px-8">
         @if(session('success'))
             <div class="bg-green-100 text-green-700 p-3 rounded mb-4">{{ session('success') }}</div>
@@ -51,6 +53,5 @@
             </table>
             <div class="mt-4">{{ $users->links() }}</div>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:underline text-sm mt-4 block">← Dashboard</a>
     </div>
 </x-app-layout>

@@ -13,7 +13,11 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('rayon', 'rombel')->latest()->paginate(10);
+        $users = User::with('rayon', 'rombel')
+            ->where('role', '!=', 'admin')
+            ->latest()
+            ->paginate(10);
+
         return view('admin.user.index', compact('users'));
     }
 
