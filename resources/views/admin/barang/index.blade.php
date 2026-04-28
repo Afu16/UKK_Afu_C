@@ -24,6 +24,7 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-100">
                     <tr>
+                        <th class="p-3 text-left">Cover</th>
                         <th class="p-3 text-left">Kode</th>
                         <th class="p-3 text-left">Nama Buku</th>
                         <th class="p-3 text-left">Kategori</th>
@@ -35,6 +36,25 @@
                 <tbody>
                     @forelse($barangs as $barang)
                     <tr class="border-t">
+                        <td class="p-3">
+                            @if($barang->cover)
+                                <img src="{{ asset('storage/' . $barang->cover) }}"
+                                    class="h-12 w-10 object-cover rounded border" alt="cover">
+                            @else
+                                <span class="text-gray-300 text-2xl">
+                                    @php
+                                        $icon = match($barang->kategori) {
+                                            'buku mapel' => '📖',
+                                            'komik'      => '🎭',
+                                            'novel'      => '📕',
+                                            'kamus'      => '📘',
+                                            default      => '📚',
+                                        };
+                                    @endphp
+                                    {{ $icon }}
+                                </span>
+                            @endif
+                        </td>
                         <td class="p-3">{{ $barang->kode_barang }}</td>
                         <td class="p-3">{{ $barang->nama }}</td>
                         <td class="p-3 capitalize">{{ $barang->kategori }}</td>
@@ -45,12 +65,14 @@
                             </span>
                         </td>
                         <td class="p-3 flex gap-2">
+                            <a href="{{ route('admin.barang.label', $barang) }}"
+                            class="bg-purple-500 text-white px-3 py-1 rounded text-xs">🏷️ Label</a>
                             <a href="{{ route('admin.barang.edit', $barang) }}"
-                               class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded text-xs">Edit</a>
+                            class="bg-yellow-400 text-white px-3 py-1 rounded text-xs">Edit</a>
                             <form method="POST" action="{{ route('admin.barang.destroy', $barang) }}"
-                                  onsubmit="return confirm('Yakin hapus?')">
+                                onsubmit="return confirm('Yakin hapus?')">
                                 @csrf @method('DELETE')
-                                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Hapus</button>
+                                <button class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button>
                             </form>
                         </td>
                     </tr>

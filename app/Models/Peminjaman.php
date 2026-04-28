@@ -33,8 +33,8 @@ class Peminjaman extends Model
         return $this->hasMany(PeminjamanDetail::class);
     }
 
-    public function denda()
+    public function dendas()
     {
-        return $this->hasOne(Denda::class);
+        return $this->hasMany(Denda::class);
     }
 }

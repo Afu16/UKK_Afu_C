@@ -40,9 +40,12 @@
                         <td class="p-3">{{ $user->rombel->nama_rombel ?? '-' }}</td>
                         <td class="p-3 flex gap-2">
                             <a href="{{ route('admin.user.edit', $user) }}" class="bg-yellow-400 text-white px-3 py-1 rounded text-xs">Edit</a>
+                            
                             <form method="POST" action="{{ route('admin.user.destroy', $user) }}" onsubmit="return confirm('Yakin hapus user ini?')">
                                 @csrf @method('DELETE')
                                 <button class="bg-red-500 text-white px-3 py-1 rounded text-xs">Hapus</button>
+                                <a href="{{ route('admin.user.kartu', $user) }}"
+                                    class="bg-purple-500 text-white px-3 py-1 rounded text-xs">Kartu</a>
                             </form>
                         </td>
                     </tr>

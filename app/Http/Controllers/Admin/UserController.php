@@ -60,12 +60,12 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name'  => 'required',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role'  => 'required|in:admin,petugas,siswa',
-            'no_id' => 'nullable|unique:users,no_id,' . $user->id,
-        ]);
+    $request->validate([
+        'name'  => 'required',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'role'  => 'required|in:admin,petugas,siswa',
+        'no_id' => 'nullable|unique:users,no_id,' . $user->id,
+    ]);
 
         $data = $request->only('name', 'email', 'role', 'no_id', 'rayon_id', 'rombel_id');
         if ($request->filled('password')) {
@@ -80,5 +80,9 @@ class UserController extends Controller
     {
         $user->delete();
         return redirect()->route('admin.user.index')->with('success', 'User berhasil dihapus!');
+    }
+    public function kartu(User $user)
+    {
+        return view('admin.user.kartu', compact('user'));
     }
 }

@@ -66,24 +66,41 @@ class PeminjamanController extends Controller
         return redirect()->route('petugas.peminjaman.index')->with('success', 'Peminjaman berhasil dicatat!');
     }
 
-    public function kembalikan($id)
+    public function kembalikan(Request $request, $id)
     {
         $peminjaman = Peminjaman::with('details.barang')->findOrFail($id);
+
+        $jumlah_hilang = $request->jumlah_hilang ?? 0;
+        $jumlah_rusak  = $request->jumlah_rusak  ?? 0;
+        $total_item    = $peminjaman->details->sum('jumlah');
 
         $tgl_rencana = $peminjaman->tgl_kembali_rencana;
         $tgl_aktual  = Carbon::today();
 
-        $peminjaman->update([
-            'status'              => 'kembali',
-            'tgl_kembali_aktual'  => $tgl_aktual,
-        ]);
-
-        // Kembalikan stok
-        foreach ($peminjaman->details as $detail) {
-            $detail->barang->increment('stok_tersedia', $detail->jumlah);
+        // Tentukan status akhir
+        if ($jumlah_hilang > 0 && $jumlah_hilang >= $total_item) {
+            $status = 'hilang';
+        } elseif ($jumlah_rusak > 0 && $jumlah_rusak >= $total_item) {
+            $status = 'rusak';
+        } else {
+            $status = 'kembali';
         }
 
-        // Cek denda telat
+        $peminjaman->update([
+            'status'             => $status,
+            'tgl_kembali_aktual' => $tgl_aktual,
+        ]);
+
+        // Kembalikan stok yang kembali normal
+        $jumlah_bermasalah = $jumlah_hilang + $jumlah_rusak;
+        $jumlah_normal     = $total_item - $jumlah_bermasalah;
+        foreach ($peminjaman->details as $detail) {
+            if ($jumlah_normal > 0) {
+                $detail->barang->increment('stok_tersedia', min($jumlah_normal, $detail->jumlah));
+            }
+        }
+
+        // Denda telat
         if ($tgl_aktual->gt($tgl_rencana)) {
             $selisih = $tgl_rencana->diffInDays($tgl_aktual);
             Denda::create([
@@ -95,52 +112,67 @@ class PeminjamanController extends Controller
             ]);
         }
 
-        logActivity('KEMBALI', 'Peminjaman ID ' . $id . ' dikembalikan');
+        // Denda hilang
+        if ($jumlah_hilang > 0) {
+            Denda::create([
+                'peminjaman_id' => $peminjaman->id,
+                'jenis'         => 'hilang',
+                'jumlah_hari'   => 0,
+                'total'         => 50000 * $jumlah_hilang,
+                'status_bayar'  => 'belum',
+            ]);
+        }
 
-        return redirect()->route('petugas.peminjaman.index')->with('success', 'Pengembalian berhasil!');
+        // Denda rusak
+        if ($jumlah_rusak > 0) {
+            Denda::create([
+                'peminjaman_id' => $peminjaman->id,
+                'jenis'         => 'rusak',
+                'jumlah_hari'   => 0,
+                'total'         => 25000 * $jumlah_rusak,
+                'status_bayar'  => 'belum',
+            ]);
+        }
+
+        logActivity('KEMBALI', 'Peminjaman ID ' . $id . ' dikembalikan. Hilang: ' . $jumlah_hilang . ', Rusak: ' . $jumlah_rusak);
+
+        return redirect()->route('petugas.pengembalian.index')->with('success', 'Pengembalian berhasil dicatat!');
     }
+    public function tolak($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
 
-    public function laporHilang($id)
+        $peminjaman->update([
+            'status' => 'ditolak',
+        ]);
+
+        logActivity('TOLAK', 'Peminjaman ID ' . $id . ' ditolak oleh ' . auth()->user()->name);
+
+        return redirect()->route('petugas.peminjaman.index')->with('success', 'Peminjaman ditolak!');
+    }
+    public function pengembalian()
+    {
+        $peminjamans = Peminjaman::with(['siswa','details.barang'])
+           ->where('status', 'dipinjam')
+           ->latest()->paginate(10);
+           return view('petugas.pengembalian', compact('peminjamans'));
+    }
+    public function approve($id)
     {
         $peminjaman = Peminjaman::with('details.barang')->findOrFail($id);
 
         $peminjaman->update([
-            'status'             => 'hilang',
-            'tgl_kembali_aktual' => Carbon::today(),
+            'petugas_id' => auth()->id(),
+            'status'     => 'dipinjam',
         ]);
 
-        Denda::create([
-            'peminjaman_id' => $peminjaman->id,
-            'jenis'         => 'hilang',
-            'jumlah_hari'   => 0,
-            'total'         => 50000, // nominal denda hilang
-            'status_bayar'  => 'belum',
-        ]);
+        // Kurangi stok
+        foreach ($peminjaman->details as $detail) {
+            $detail->barang->decrement('stok_tersedia', $detail->jumlah);
+        }
 
-        logActivity('HILANG', 'Peminjaman ID ' . $id . ' dilaporkan hilang');
+        logActivity('APPROVE', 'Peminjaman ID ' . $id . ' disetujui oleh ' . auth()->user()->name);
 
-        return redirect()->route('petugas.peminjaman.index')->with('success', 'Laporan hilang dicatat!');
-    }
-
-    public function laporRusak($id)
-    {
-        $peminjaman = Peminjaman::with('details.barang')->findOrFail($id);
-
-        $peminjaman->update([
-            'status'             => 'rusak',
-            'tgl_kembali_aktual' => Carbon::today(),
-        ]);
-
-        Denda::create([
-            'peminjaman_id' => $peminjaman->id,
-            'jenis'         => 'rusak',
-            'jumlah_hari'   => 0,
-            'total'         => 25000, // nominal denda rusak
-            'status_bayar'  => 'belum',
-        ]);
-
-        logActivity('RUSAK', 'Peminjaman ID ' . $id . ' dilaporkan rusak');
-
-        return redirect()->route('petugas.peminjaman.index')->with('success', 'Laporan rusak dicatat!');
+        return redirect()->route('petugas.peminjaman.index')->with('success', 'Peminjaman disetujui!');
     }
 }

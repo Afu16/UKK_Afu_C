@@ -11,34 +11,42 @@ use Carbon\Carbon;
 
 class KatalogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $barangs = Barang::where('stok_tersedia', '>', 0)
-            ->latest()->paginate(12);
-        return view('siswa.katalog', compact('barangs'));
+        $kategori = $request->kategori;
+        $barang   = $request->barang_id ? \App\Models\Barang::find($request->barang_id) : null;
+
+        $kategoris = \App\Models\Barang::where('stok_tersedia', '>', 0)
+            ->distinct()->pluck('kategori');
+
+        $barangs = null;
+        if ($kategori) {
+            $barangs = \App\Models\Barang::where('kategori', $kategori)
+                ->where('stok_tersedia', '>', 0)->get();
+        }
+
+        return view('siswa.katalog', compact('kategoris', 'kategori', 'barangs', 'barang'));
     }
 
     public function request(Request $request)
     {
         $request->validate([
             'barang_id'           => 'required|exists:barangs,id',
-            'jumlah'              => 'required|integer|min:1',
-            'tgl_kembali_rencana' => 'required|date|after:today',
+            'tgl_kembali_rencana' => 'required|date|after:today|before_or_equal:' . Carbon::today()->addWeeks(1)->format('Y-m-d'),
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
 
-        if ($barang->stok_tersedia < $request->jumlah) {
-            return back()->withErrors(['jumlah' => 'Stok tidak cukup!']);
+        if ($barang->stok_tersedia < 1) {
+            return back()->with('error', 'Stok tidak tersedia!');
         }
 
-        // Cek siswa masih punya peminjaman aktif
         $aktif = Peminjaman::where('siswa_id', auth()->id())
-            ->where('status', 'dipinjam')
+            ->whereIn('status', ['dipinjam', 'menunggu'])
             ->exists();
 
         if ($aktif) {
-            return back()->with('error', 'Kamu masih memiliki peminjaman aktif. Kembalikan dulu sebelum meminjam lagi.');
+            return back()->with('error', 'Kamu masih memiliki peminjaman aktif atau menunggu.');
         }
 
         $peminjaman = Peminjaman::create([
@@ -52,11 +60,11 @@ class KatalogController extends Controller
         PeminjamanDetail::create([
             'peminjaman_id' => $peminjaman->id,
             'barang_id'     => $request->barang_id,
-            'jumlah'        => $request->jumlah,
+            'jumlah'        => 1,
         ]);
 
         logActivity('REQUEST', 'Siswa ' . auth()->user()->name . ' request pinjam ' . $barang->nama);
 
-        return redirect()->route('siswa.history')->with('success', 'Request peminjaman berhasil! Tunggu konfirmasi petugas.');
+        return redirect()->route('siswa.history')->with('success', 'Request berhasil! Batas kembali: ' . \Carbon\Carbon::parse($request->tgl_kembali_rencana)->format('d/m/Y'));
     }
 }

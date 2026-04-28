@@ -46,41 +46,51 @@
                         <td class="p-3">
                             <span class="px-2 py-1 rounded text-xs font-semibold
                                 {{ $p->status == 'dipinjam' ? 'bg-blue-100 text-blue-600' :
-                                   ($p->status == 'kembali' ? 'bg-green-100 text-green-600' :
-                                   ($p->status == 'hilang'  ? 'bg-red-100 text-red-600' :
-                                   ($p->status == 'rusak'   ? 'bg-orange-100 text-orange-600' :
-                                    'bg-gray-100 text-gray-600'))) }}">
+                                ($p->status == 'kembali' ? 'bg-green-100 text-green-600' :
+                                ($p->status == 'hilang'  ? 'bg-red-100 text-red-600' :
+                                ($p->status == 'rusak'   ? 'bg-orange-100 text-orange-600' :
+                                ($p->status == 'ditolak'? 'bg-red-400 text-red-950':
+                                    'bg-yellow-100 text-yellow-600')))) }}">
                                 {{ ucfirst($p->status) }}
                             </span>
-                        </td>
-                        <td class="p-3">
-                                @if($p->status === 'menunggu')
-                                <form method="POST" action="{{ route('petugas.peminjaman.approve', $p->id) }}">
-                                    @csrf
-                                    <button class="bg-blue-500 text-white px-2 py-1 rounded text-xs">Approve</button>
-                                </form>
-                                @endif
-                            @if($p->status === 'dipinjam')
-                            <div class="flex gap-1 flex-wrap">
-                                <form method="POST" action="{{ route('petugas.peminjaman.kembalikan', $p->id) }}">
-                                    @csrf
-                                    <button class="bg-green-500 text-white px-2 py-1 rounded text-xs">Kembalikan</button>
-                                </form>
-                                <form method="POST" action="{{ route('petugas.peminjaman.hilang', $p->id) }}"
-                                      onsubmit="return confirm('Laporkan hilang?')">
-                                    @csrf
-                                    <button class="bg-red-500 text-white px-2 py-1 rounded text-xs">Hilang</button>
-                                </form>
-                                <form method="POST" action="{{ route('petugas.peminjaman.rusak', $p->id) }}"
-                                      onsubmit="return confirm('Laporkan rusak?')">
-                                    @csrf
-                                    <button class="bg-orange-500 text-white px-2 py-1 rounded text-xs">Rusak</button>
-                                </form>
-                            </div>
-                            @else
-                                <span class="text-gray-400 text-xs">Selesai</span>
+                            @if($p->denda)
+                                <div class="mt-1 flex flex-col gap-0.5">
+                                    @foreach($p->denda as $d)
+                                        <span class="text-xs
+                                            {{ $d->jenis == 'hilang' ? 'text-red-500' :
+                                            ($d->jenis == 'rusak' ? 'text-orange-500' : 'text-yellow-600') }}">
+                                            ⚠️ {{ ucfirst($d->jenis) }}
+                                            Rp{{ number_format($d->total, 0, ',', '.') }}
+                                        </span>
+                                    @endforeach
+                                </div>
                             @endif
                         </td>
+<td class="p-3">
+    @if($p->status === 'menunggu')
+    <div class="flex gap-1">
+        <form method="POST" action="{{ route('petugas.peminjaman.approve', $p->id) }}">
+            @csrf
+            <button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
+                ✓ Approve
+            </button>
+        </form>
+        <form method="POST" action="{{ route('petugas.peminjaman.tolak', $p->id) }}"
+              onsubmit="return confirm('Tolak peminjaman ini?')">
+            @csrf
+            <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
+                ✗ Tolak
+            </button>
+        </form>
+    </div>
+    @elseif($p->status === 'dipinjam')
+        <span class="text-blue-400 text-xs">Sedang dipinjam</span>
+    @elseif($p->status === 'ditolak')
+        <span class="text-red-400 text-xs">Ditolak</span>
+    @else
+        <span class="text-gray-400 text-xs">Selesai</span>
+    @endif
+</td>
                     </tr>
                     @empty
                     <tr><td colspan="6" class="p-3 text-center text-gray-400">Belum ada peminjaman</td></tr>

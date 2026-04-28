@@ -18,9 +18,21 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white p-6 rounded-lg shadow mb-6">
+        @if($role === 'siswa')
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <div class="flex justify-between items-center">
                 <p class="text-lg">Selamat datang, <strong>{{ auth()->user()->name }}</strong>!</p>
+                <a href="{{ route('siswa.kartu') }}"
+                class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm">
+                    🪪 Kartu Saya
+                </a>
             </div>
+        </div>
+        @else
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <p class="text-lg">Selamat datang, <strong>{{ auth()->user()->name }}</strong>!</p>
+        </div>
+        @endif
 
             {{-- Menu per role --}}
             @if($role === 'admin')
@@ -51,9 +63,9 @@
                 <a href="{{ route('petugas.peminjaman.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center shadow">
                     📋 Transaksi Pinjam
                 </a>
-                {{-- <a href="#" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center shadow">
+                <a href="{{route('petugas.pengembalian.index')}}" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center shadow">
                     🔄 Pengembalian
-                </a> --}}
+                </a>
                 <a href="{{ route('petugas.denda.index') }}" class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-lg text-center shadow">
                     💰 Denda
                 </a>
@@ -63,7 +75,7 @@
             @if($role === 'siswa')
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <a href="{{ route('siswa.katalog') }}" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center shadow">
-                    📚 Katalog Barang
+                    📚 Katalog Buku
                 </a>
                 <a href="{{ route('siswa.history') }}" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center shadow">
                     📋 Riwayat Pinjam

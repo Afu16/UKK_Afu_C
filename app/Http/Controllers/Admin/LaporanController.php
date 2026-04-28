@@ -13,7 +13,7 @@ class LaporanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Peminjaman::with(['siswa.rayon', 'siswa.rombel', 'details.barang', 'denda']);
+        $query = Peminjaman::with(['siswa.rayon', 'siswa.rombel', 'details.barang', 'dendas']);
 
         // Filter status
         if ($request->filled('status')) {

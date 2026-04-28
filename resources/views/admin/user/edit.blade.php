@@ -10,7 +10,11 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full border rounded px-3 py-2">
+                    <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                        class="w-full border rounded px-3 py-2 @error('email') border-red-500 @enderror">
+                    @error('email')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Password <span class="text-gray-400 text-xs">(kosongkan jika tidak diubah)</span></label>
@@ -25,10 +29,14 @@
                 </div>
 
                 <div id="siswa-fields">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1">No ID / Barcode / KTP</label>
-                        <input type="text" name="no_id" value="{{ old('no_id', $user->no_id) }}" class="w-full border rounded px-3 py-2">
-                    </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">No ID / Barcode / KTP</label>
+                    <input type="text" name="no_id" value="{{ old('no_id', $user->no_id) }}"
+                        class="w-full border rounded px-3 py-2 @error('no_id') border-red-500 @enderror">
+                    @error('no_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium mb-1">Rayon</label>
                         <select name="rayon_id" class="w-full border rounded px-3 py-2">

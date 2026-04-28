@@ -42,23 +42,32 @@
                                    ($p->status == 'dipinjam' ? 'bg-blue-100 text-blue-600' :
                                    ($p->status == 'kembali'  ? 'bg-green-100 text-green-600' :
                                    ($p->status == 'hilang'   ? 'bg-red-100 text-red-600' :
-                                    'bg-orange-100 text-orange-600'))) }}">
+                                   ($p->status == 'ditolak'? 'bg-red-400 text-red-950':
+                                    'bg-orange-100 text-orange-600')))) }}">
                                 {{ ucfirst($p->status) }}
                             </span>
                         </td>
-                        <td class="p-3">
-                            @if($p->denda)
-                                <span class="text-red-500 font-semibold">
-                                    Rp {{ number_format($p->denda->total, 0, ',', '.') }}
-                                </span>
-                                <span class="text-xs ml-1
-                                    {{ $p->denda->status_bayar == 'lunas' ? 'text-green-500' : 'text-red-400' }}">
-                                    ({{ $p->denda->status_bayar }})
-                                </span>
-                            @else
-                                <span class="text-gray-400 text-xs">-</span>
-                            @endif
-                        </td>
+<td class="p-3">
+    @if($p->dendas && $p->dendas->count() > 0)
+        @php $totalDenda = $p->dendas->sum('total') @endphp
+        <span class="text-red-500 font-semibold">
+            Rp {{ number_format($totalDenda, 0, ',', '.') }}
+        </span>
+        <div>
+            @foreach($p->dendas as $d)
+                <span class="text-xs text-gray-500">{{ ucfirst($d->jenis) }}
+                    @if($d->status_bayar == 'lunas')
+                        <span class="text-green-500">(lunas)</span>
+                    @else
+                        <span class="text-red-400">(belum)</span>
+                    @endif
+                </span>
+            @endforeach
+        </div>
+    @else
+        <span class="text-gray-400 text-xs">-</span>
+    @endif
+</td>
                     </tr>
                     @empty
                     <tr><td colspan="5" class="p-3 text-center text-gray-400">Belum ada riwayat peminjaman</td></tr>

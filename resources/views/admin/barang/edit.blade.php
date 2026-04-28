@@ -5,7 +5,7 @@
 
     <div class="py-8 max-w-2xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white rounded-lg shadow p-6">
-            <form method="POST" action="{{ route('admin.barang.update', $barang) }}">
+            <form method="POST" action="{{ route('admin.barang.update', $barang) }}" enctype="multipart/form-data">
                 @csrf @method('PUT')
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Kode Barang</label>
@@ -33,6 +33,21 @@
                     <input type="number" name="stok_total" value="{{ old('stok_total', $barang->stok_total) }}" min="1"
                            class="w-full border rounded px-3 py-2">
                     @error('stok_total')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-1">Cover / Foto</label>
+                    @if($barang->cover)
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/' . $barang->cover) }}"
+                            class="h-24 w-auto rounded border object-cover" alt="Cover">
+                        <p class="text-xs text-gray-400 mt-1">Cover saat ini</p>
+                    </div>
+                    @endif
+
+                    <input type="file" name="cover" accept="image/*"
+                        class="w-full border rounded px-3 py-2 text-sm">
+                    <p class="text-xs text-gray-400 mt-1">Kosongkan jika tidak ingin mengubah cover</p>
+                    @error('cover')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div class="flex gap-3">
                     <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded">Update</button>
